@@ -1,8 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from typing import List, Optional
 import sqlite3
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    conn=create_connection()
+    create_tables(conn)
+    if not get_user_by_username(conn,"admin"):
+        register_admin(conn,"admin","admin","Admin User")
+    yield
+    conn.close()
+
+app = FastAPI(lifespan=lifespan)
 
 def create_connection(): #create connection to sqlite db
     conn = sqlite3.connect('shopping_mall.db') #db name is shopping_mall.db
@@ -85,14 +95,6 @@ def get_user_by_username(conn, username): #search user
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE username = ?', (username,)) #search database by username
     return cursor.fetchone() #get data from db and return it
-
-@app.on_event("startup") #when app start
-async def startup_event(): 
-    conn = create_connection() #create sqlite db connection
-    create_tables(conn) #create two tables
-    if not get_user_by_username(conn, "admin"): #if admin account doesn't exist in datebase
-        register_admin(conn, "admin", "admin", "Admin User") #register admin 
-    conn.close()
 
 @app.get("/register") #GET -> register
 #params -> username, password, role, full_name, address(optional), payment info(optional)
