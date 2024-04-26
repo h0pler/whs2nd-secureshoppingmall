@@ -96,16 +96,16 @@ def get_user_by_username(conn, username): #search user
     cursor.execute('SELECT * FROM users WHERE username = ?', (username,)) #search database by username
     return cursor.fetchone() #get data from db and return it
 
-@app.get("/register") #GET -> register
-#params -> username, password, role, full_name, address(optional), payment info(optional)
+@app.post("/register") #POST -> register
+#data -> username, password, role, full_name, address(optional), payment info(optional)
 async def register_user(username: str, password: str, role: str, full_name: str, address: Optional[str] = None, payment_info: Optional[str] = None):
     conn = create_connection()
     result = add_user(conn, username, password, role, full_name, address, payment_info) #add user info to database
     conn.close()
     return result
 
-@app.get("/login") #GET -> login
-async def login(username: str, password: str): #params -> username, password
+@app.post("/login") #POST -> login
+async def login(username: str, password: str): #data -> username, password
     conn = create_connection()
     result = authenticate_user(conn, username, password) #search database and authenticate
     conn.close()
@@ -118,16 +118,16 @@ async def get_products():
     conn.close()
     return products
 
-@app.get("/add_product") #GET -> add_product
-#params -> name, category, price, thumbnail_url
+@app.post("/add_product") #POST -> add_product
+#data -> name, category, price, thumbnail_url
 async def add_new_product(name: str, category: str, price: float, thumbnail_url: str):
     conn = create_connection()
     result = add_product(conn, name, category, price, thumbnail_url) #add product info to database
     conn.close()
     return result
 
-@app.get("/update_user_info") #GET -> update_user_info
-#params -> username, full_name, address, payment_info
+@app.put("/update_user_info") #PUT -> update_user_info
+#data -> username, full_name, address, payment_info
 async def update_user_info_endpoint(username: str, full_name: str, address: str, payment_info: str):
     conn = create_connection()
     result = update_user_info(conn, username, full_name, address, payment_info) #update user info in database
