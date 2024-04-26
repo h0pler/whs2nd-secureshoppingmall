@@ -62,7 +62,7 @@ def register_admin(conn, username, password, full_name): #register admin
 def authenticate_user(conn, username, password): #authenticate user
     cursor = conn.cursor()
     #search user using 'username' and 'password'
-    cursor.execute(f'SELECT * FROM users WHERE username = "{username}" AND password = "{password}"')
+    cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password))
     user = cursor.fetchone() #get data from db
     if user:
         #database -> array
